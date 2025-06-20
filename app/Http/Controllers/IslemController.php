@@ -8,12 +8,19 @@ use App\Models\Musteri;
 
 class IslemController extends Controller
 {
+    public function index($musteri_id)
+    {
+        $musteri = Musteri::findOrFail($musteri_id);
+        $islemler = $musteri->islemler;
+
+        return view('islemler.index', compact('musteri', 'islemler'));
+    }
+
     public function destroy($id)
     {
         $islem = Islem::findOrFail($id);
         $musteri = $islem->musteri;
 
-        // Toplam fiyatı güncelle
         if ($musteri) {
             $musteri->toplam_fiyat -= $islem->fiyat;
             $musteri->save();
@@ -21,6 +28,8 @@ class IslemController extends Controller
 
         $islem->delete();
 
-        return redirect()->route('musteriler.index')->with('success', 'İşlem başarıyla silindi.');
+        return redirect()->route('musteriler.islemler.index', ['musteri' => $musteri->id])
+            ->with('success', 'İşlem başarıyla silindi.');
     }
+  
 }

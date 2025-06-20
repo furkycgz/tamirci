@@ -1,11 +1,26 @@
 <?php
 
 namespace App\Providers;
+use App\Models\Ayar;
+
 
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+
+    // app/Providers/AppServiceProvider.php
+
+
+
+public function boot()
+{
+    view()->composer('*', function ($view) {
+        $view->with('genelAyar', Ayar::first());
+    });
+}
+
+
     /**
      * Register any application services.
      */
@@ -17,8 +32,5 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //
-    }
+   
 }

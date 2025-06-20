@@ -16,23 +16,40 @@
     </div>
 
     <div class="mb-3">
-        <strong>Model:</strong> {{ $musteri->model }}
+       <h4>Araç Geçmişi</h4>
+<ul>
+    @foreach ($musteri->aracGecmisleri as $arac)
+        <li>
+            {{ $arac->model }} - {{ $arac->plaka }}
+            <small class="text-muted">({{ $arac->created_at->format('d.m.Y H:i') }})</small>
+        </li>
+    @endforeach
+    <li>
+        <strong>{{ $musteri->model }} - {{ $musteri->plaka }} (Güncel)</strong>
+    </li>
+</ul>
+
+
+
     </div>
 
     <hr>
 
-    <h4>Yapılan İşlemler:</h4>
-    @if ($musteri->islemler->count())
-        <ul>
-            @foreach($musteri->islemler as $islem)
-                <li>{{ $islem->yapilan_islem }} - {{ number_format($islem->fiyat, 2) }} ₺</li>
-            @endforeach
-        </ul>
-        <strong class="text-success">Toplam Tutar: {{ number_format($musteri->islemler->sum('fiyat'), 2) }} ₺</strong>
-    @else
-        <em>Henüz işlem yok.</em>
-    @endif
-    
+    <h4>Yapılan İşlemler</h4>
+@if($islemler->count())
+    <ul>
+        @foreach($islemler as $islem)
+            <li>
+                {{ $islem->created_at->format('d.m.Y H:i') }} – 
+                {{ $islem->yapilan_islem }} – 
+                {{ number_format($islem->fiyat, 2) }} ₺
+            </li>
+        @endforeach
+    </ul>
+@else
+    <p>İşlem bulunamadı.</p>
+@endif
+
     <br><br>
     <a href="{{ route('musteriler.index') }}" class="btn btn-secondary">← Geri Dön</a>
 @endsection

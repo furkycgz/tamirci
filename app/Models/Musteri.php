@@ -23,4 +23,15 @@ class Musteri extends Model
     {
         return $this->hasMany(Islem::class, 'musteri_id');
     }
+
+    public function modelGecmisi()
+{
+    return $this->hasMany(ModelGecmisi::class);
+}
+  
+
+  public function aracGecmisleri()
+{
+    return $this->hasMany(AracGecmisi::class);
+}
 }

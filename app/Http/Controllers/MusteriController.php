@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Musteri;
 use App\Models\Islem;
+use App\Models\ModelGecmisi;
+use App\Models\AracGecmisi;
 
 class MusteriController extends Controller
 {
@@ -76,24 +78,33 @@ class MusteriController extends Controller
 
 public function update(Request $request, $id)
 {
-    $request->validate([
-        'ad_soyad' => 'required|string|max:255',
-        'telefon' => 'required|string|max:20',
-        'plaka' => 'required|string|max:20',
-        'model' => 'required|string|max:255',
-    ]);
-
     $musteri = Musteri::findOrFail($id);
-    $musteri->update($request->only(['ad_soyad', 'telefon', 'plaka', 'model']));
 
-    return redirect()->route('musteriler.index')->with('success', 'Müşteri bilgileri güncellendi.');
+    // Model veya plaka değiştiyse, geçmişe kaydet
+    if ($request->model !== $musteri->model || $request->plaka !== $musteri->plaka) {
+        AracGecmisi::create([
+            'musteri_id' => $musteri->id,
+            'model' => $musteri->model,
+            'plaka' => $musteri->plaka,
+        ]);
+    }
+
+    // Güncel bilgileri kaydet
+    $musteri->ad_soyad = $request->ad_soyad;
+    $musteri->telefon = $request->telefon;
+    $musteri->plaka = $request->plaka;
+    $musteri->model = $request->model;
+    $musteri->save();
+
+    return redirect()->route('musteriler.show', $musteri->id)->with('success', 'Müşteri güncellendi.');
 }
-
 
 public function show($id)
 {
     $musteri = Musteri::findOrFail($id);
-    return view('musteriler.show', compact('musteri'));
+    $islemler = $musteri->islemler()->orderBy('created_at', 'desc')->get(); // 👈 işlemleri sırala
+
+    return view('musteriler.show', compact('musteri', 'islemler')); // 👈 $islemler değişkenini gönder
 }
 
 
@@ -109,6 +120,7 @@ public function destroy($id)
 
     return redirect()->route('musteriler.index')->with('success', 'Müşteri ve işlemleri silindi.');
 }
+
 
     
 
