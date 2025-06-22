@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('musteriler.islem.store', $musteri->id) }}">
+    <form method="POST" action="{{ route('musteriler.islemler.store', $musteri->id) }}">
         @csrf
         <div class="mb-3">
             <label for="yapilan_islem" class="form-label">Yapılan İşlem</label>
@@ -29,3 +29,7 @@
     </form>
 </div>
 @endsection
+
+
+
+

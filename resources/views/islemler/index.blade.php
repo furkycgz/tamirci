@@ -12,16 +12,20 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
+                    <th>#İş No</th>
                     <th>İşlem</th>
                     <th>Fiyat</th>
+                    <th>Tarih</th>
                     <th>Sil</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($islemler as $islem)
                     <tr>
+                        <td>{{ $islem->id }}</td>
                         <td>{{ $islem->yapilan_islem }}</td>
                         <td>{{ number_format($islem->fiyat, 2) }} ₺</td>
+                        <td>{{ $islem->created_at->format('d.m.Y H:i') }}</td>
                         <td>
                             <form action="{{ route('islemler.destroy', $islem->id) }}" method="POST" onsubmit="return confirm('İşlem silinsin mi?')">
                                 @csrf

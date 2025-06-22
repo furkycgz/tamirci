@@ -7,17 +7,15 @@
     <a href="{{ route('musteriler.create') }}" class="btn btn-primary">+ Yeni Müşteri Ekle</a>
 </div>
 
-
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
         <tr>
             <th>Ad Soyad</th>
             <th>Telefon</th>
             <th>Plaka</th>
             <th>Model</th>
             <th>Toplam Fiyat</th>
-            <th>DÜZENLE</th>
-           
+            <th>İşlemler</th>
         </tr>
     </thead>
     <tbody>
@@ -35,15 +33,10 @@
                     @endif
                 </td>
                 <td>
-                    <ul>
-                        <li><a href="{{ route('musteriler.islem.create', $musteri->id) }}" class="btn btn-sm btn-success">İşlem Ekle</a></li>
-                        <br>
-                        <li><a href="{{ route('musteriler.edit', $musteri->id) }}" class="btn btn-sm btn-warning">Düzenle</a></li>
-                        <br>
-                        <li><a href="{{ route('musteriler.show', $musteri->id) }}" class="btn btn-sm btn-info">Detay</a></li>
-                        <br>
-                        <li><a href="{{ route('musteriler.islemler.index', $musteri->id) }}" class="btn btn-sm btn-danger">İşlem Sil</a></li> 
-                    </ul>
+                    <a href="{{ route('musteriler.islemler.create', $musteri->id) }}" class="btn btn-sm btn-success mb-1">İşlem Ekle</a>
+                    <a href="{{ route('musteriler.edit', $musteri->id) }}" class="btn btn-sm btn-warning mb-1">Düzenle</a>
+                    <a href="{{ route('musteriler.show', $musteri->id) }}" class="btn btn-sm btn-info mb-1">Detay</a>
+                    <a href="{{ route('musteriler.islemler.index', $musteri->id) }}" class="btn btn-sm btn-danger mb-1">İşlem Sil</a>
                 </td>
             </tr>
         @endforeach

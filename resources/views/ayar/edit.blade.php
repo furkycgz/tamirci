@@ -24,8 +24,9 @@
         <div class="mb-3">
             <label>Logo Yükle</label>
             <input type="file" name="logo" class="form-control">
+            <br>
             @if(isset($ayar->logo))
-                <img src="{{ asset($ayar->logo) }}" height="100" class="mt-2">
+              <img src="{{ asset('storage/' . $ayar->logo) }}" alt="Logo" height="40" width="40" class="rounded-circle me-2" style="object-fit: cover;" />
             @endif
         </div>
 

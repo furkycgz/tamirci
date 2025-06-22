@@ -2,45 +2,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Ayar;
+use App\Models\SirketAyar;
 
 
 
 class AyarController extends Controller
 {
-    public function edit()
-    {
-        $ayar = Ayar::first(); // İlk ayar kaydını al (tek bir tane olacak zaten)
-        return view('ayar.edit', compact('ayar'));
-    }
+   public function edit()
+{
+    $user = auth()->user();
+    $ayar = SirketAyar::where('user_id', $user->id)->first();
 
-   public function update(Request $request)
+    return view('ayar.edit', compact('ayar'));
+}
+
+
+  public function update(Request $request)
 {
     $request->validate([
-        'sirket_adi' => 'required',
-        'adres' => 'required',
-        'logo' => 'nullable|image|max:2048',
+        'sirket_adi' => 'required|string|max:255',
+        'adres' => 'nullable|string|max:500',
+        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
-    $ayar = Ayar::first();
+    $user = auth()->user();
 
-    // Eğer hiç ayar kaydı yoksa oluştur
-    if (!$ayar) {
-        $ayar = new Ayar();
-    }
-
-    // Logo varsa yükle
-    if ($request->hasFile('logo')) {
-        $logoPath = $request->file('logo')->store('logos', 'public');
-        $ayar->logo = 'storage/' . $logoPath;
-    }
+    $ayar = SirketAyar::firstOrNew(['user_id' => $user->id]);
 
     $ayar->sirket_adi = $request->sirket_adi;
     $ayar->adres = $request->adres;
+
+    if ($request->hasFile('logo')) {
+        $path = $request->file('logo')->store('logos', 'public');
+        $ayar->logo = $path;
+    }
+
+    $ayar->user_id = $user->id;
     $ayar->save();
 
-    return redirect()->route('ayar.edit')->with('success', 'Ayarlar güncellendi.');
+    return back()->with('success', 'Ayarlar başarıyla güncellendi.');
 }
+
 
 }
 
