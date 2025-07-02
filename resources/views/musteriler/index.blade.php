@@ -14,7 +14,7 @@
             <th>Telefon</th>
             <th>Plaka</th>
             <th>Model</th>
-            <th>Toplam Fiyat</th>
+            <th>Kalan Borç</th> {{-- Başlığı güncelledim --}}
             <th>İşlemler</th>
         </tr>
     </thead>
@@ -26,8 +26,14 @@
                 <td>{{ $musteri->plaka }}</td>
                 <td>{{ $musteri->model }}</td>
                 <td>
-                    @if($musteri->islemler->count())
-                        {{ number_format($musteri->islemler->sum('fiyat'), 2) }} ₺
+                    @php
+                        $toplamIslem = $musteri->islemler->sum('fiyat');
+                        $toplamOdeme = $musteri->odemeler->sum('tutar');
+                        $kalanBorc = $toplamIslem - $toplamOdeme;
+                    @endphp
+
+                    @if($toplamIslem > 0)
+                        {{ number_format($kalanBorc, 2) }} ₺
                     @else
                         -
                     @endif

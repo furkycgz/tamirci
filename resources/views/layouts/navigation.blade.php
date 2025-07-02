@@ -30,7 +30,10 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('musteriler.*') ? 'active' : '' }}" href="{{ route('musteriler.index') }}">Müşteriler</a>
                 </li>
-                
+                 <li class="nav-item">
+                     <a class="nav-link {{ request()->routeIs('musteriler.*') ? 'active' : '' }}"  href="{{ route('musteriler.hesap') }}" >Hesap Sayfasına Git</a>
+
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('ayar.*') ? 'active' : '' }}" href="{{ route('ayar.edit') }}">Ayarlar</a>
                 </li>

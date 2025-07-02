@@ -22,7 +22,7 @@
             <tbody>
                 @foreach($islemler as $islem)
                     <tr>
-                        <td>{{ $islem->id }}</td>
+                        <td>{{ $islem->kullanici_islem_no}}</td>
                         <td>{{ $islem->yapilan_islem }}</td>
                         <td>{{ number_format($islem->fiyat, 2) }} ₺</td>
                         <td>{{ $islem->created_at->format('d.m.Y H:i') }}</td>

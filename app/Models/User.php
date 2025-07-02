@@ -51,5 +51,10 @@ class User extends Authenticatable
 {
     return $this->hasOne(SirketAyar::class);
 }
+    public function musterilers()
+{
+    return $this->hasMany(Musteriler::class);
+}
+
 
 }

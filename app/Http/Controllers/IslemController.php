@@ -44,32 +44,48 @@ public function index($musteriId)
     }
 
 
-     public function store(Request $request, $musteriId)
+   public function store(Request $request, $musteriId)
 {
     $request->validate([
-        'yapilan_islem' => 'required|string',
-        'fiyat' => 'required|numeric',
+        'yapilan_islem' => 'required|string|max:255',
+        'fiyat' => 'required|numeric|min:0',
     ]);
 
-    Islem::create([
+    $userId = auth()->id();
+
+    // Bu kullanıcıya ait son işlem no'yu bul
+    $sonNo = Islem::where('user_id', $userId)->max('kullanici_islem_no') ?? 0;
+    $yeniNo = $sonNo + 1;
+
+    // İşlemi oluştur
+    $islem = Islem::create([
         'musteri_id' => $musteriId,
         'yapilan_islem' => $request->yapilan_islem,
         'fiyat' => $request->fiyat,
+        'user_id' => $userId,
+        'kullanici_islem_no' => $yeniNo,
     ]);
+
+    // Müşterinin toplam fiyatını güncelle
+    $musteri = Musteri::findOrFail($musteriId);
+    $musteri->toplam_fiyat += $islem->fiyat;
+    $musteri->save();
 
     return redirect()->route('musteriler.islemler.index', $musteriId)
                      ->with('success', 'İşlem başarıyla eklendi.');
 }
 
-       public function sonIslemler()
-    {
-        $sonIslemler = Islem::with('musteri')
-                        ->latest()
-                        ->take(5)
-                        ->get();
 
-        return view('islemler.son_islemler', compact('sonIslemler'));
-    }
+      public function sonIslemler()
+{
+    $sonIslemler = Islem::where('user_id', auth()->id())
+                    ->with('musteri')
+                    ->latest()
+                    ->take(5)
+                    ->get();
+
+    return view('islemler.son_islemler', compact('sonIslemler'));
+}
 
 
 }

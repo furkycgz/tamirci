@@ -7,121 +7,140 @@ use App\Models\Musteri;
 use App\Models\Islem;
 use App\Models\ModelGecmisi;
 use App\Models\AracGecmisi;
-
+use App\Models\Odeme;
 class MusteriController extends Controller
 {
-    // Müşteri listeleme sayfası
+    // Müşteri listeleme
     public function index()
     {
-        $musteriler = Musteri::with('islemler')->get();
+        $musteriler = Musteri::where('user_id', auth()->id())->get();
         return view('musteriler.index', compact('musteriler'));
     }
 
-    // Yeni müşteri formu göster
+    // Müşteri formu
     public function create()
     {
         return view('musteriler.create');
     }
 
-    // Yeni müşteri kaydet
+    // Müşteri kaydetme
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'ad_soyad' => 'required|string|max:255',
             'telefon' => 'required|string|max:20',
             'plaka' => 'required|string|max:10',
             'model' => 'required|string|max:50',
         ]);
 
-        Musteri::create($request->all());
+        $validated['user_id'] = auth()->id();
 
-        return redirect()->route('musteriler.index')->with('success', 'Müşteri başarıyla eklendi!');
+        Musteri::create($validated);
+
+        return redirect()->route('musteriler.index')->with('success', 'Müşteri başarıyla eklendi.');
     }
 
-    // Müşteriye işlem eklemek için form göster
+    // İşlem ekleme formu
     public function createIslem($musteri_id)
     {
         $musteri = Musteri::findOrFail($musteri_id);
         return view('islemler.create', compact('musteri'));
     }
 
-
-
-
-
-     public function storeIslem(Request $request, $musteri_id)
-     {
-    $request->validate([
-        'yapilan_islem' => 'required|string|max:255',
-        'fiyat' => 'required|numeric|min:0',
-    ]);
-
-    $musteri = Musteri::findOrFail($musteri_id);
-
-    $musteri->islemler()->create([
-        'yapilan_islem' => $request->yapilan_islem,
-        'fiyat' => $request->fiyat,
-    ]);
-
-    // TOPLAM FİYATI GÜNCELLE
-    $musteri->toplam_fiyat += $request->fiyat;
-    $musteri->save();
-
-    return redirect()->route('musteriler.index')->with('success', 'İşlem başarıyla eklendi!');
-    }
-
-    public function edit($id)
-{
-    $musteri = Musteri::findOrFail($id);
-    return view('musteriler.edit', compact('musteri'));
-}
-
-public function update(Request $request, $id)
-{
-    $musteri = Musteri::findOrFail($id);
-
-    // Model veya plaka değiştiyse, geçmişe kaydet
-    if ($request->model !== $musteri->model || $request->plaka !== $musteri->plaka) {
-        AracGecmisi::create([
-            'musteri_id' => $musteri->id,
-            'model' => $musteri->model,
-            'plaka' => $musteri->plaka,
+    // İşlem kaydet
+    public function storeIslem(Request $request, $musteri_id)
+    {
+        $request->validate([
+            'yapilan_islem' => 'required|string|max:255',
+            'fiyat' => 'required|numeric|min:0',
         ]);
+
+        $musteri = Musteri::findOrFail($musteri_id);
+
+        $musteri->islemler()->create([
+            'yapilan_islem' => $request->yapilan_islem,
+            'fiyat' => $request->fiyat,
+        ]);
+
+        // toplam fiyatı güncelle
+        $musteri->toplam_fiyat = $musteri->toplam_fiyat + $request->fiyat;
+        $musteri->save();
+
+        return redirect()->route('musteriler.index')->with('success', 'İşlem başarıyla eklendi.');
     }
 
-    // Güncel bilgileri kaydet
-    $musteri->ad_soyad = $request->ad_soyad;
-    $musteri->telefon = $request->telefon;
-    $musteri->plaka = $request->plaka;
-    $musteri->model = $request->model;
-    $musteri->save();
+    // Müşteri düzenleme formu
+    public function edit($id)
+    {
+        $musteri = Musteri::findOrFail($id);
+        return view('musteriler.edit', compact('musteri'));
+    }
 
-    return redirect()->route('musteriler.show', $musteri->id)->with('success', 'Müşteri güncellendi.');
-}
+    // Müşteri güncelle
+    public function update(Request $request, $id)
+    {
+        $musteri = Musteri::findOrFail($id);
 
-public function show($id)
+        if ($request->model !== $musteri->model || $request->plaka !== $musteri->plaka) {
+            AracGecmisi::create([
+                'musteri_id' => $musteri->id,
+                'model' => $musteri->model,
+                'plaka' => $musteri->plaka,
+            ]);
+        }
+
+        $musteri->update([
+            'ad_soyad' => $request->ad_soyad,
+            'telefon' => $request->telefon,
+            'plaka' => $request->plaka,
+            'model' => $request->model,
+        ]);
+
+        return redirect()->route('musteriler.show', $musteri->id)->with('success', 'Müşteri güncellendi.');
+    }
+
+    // Müşteri detay
+    public function show($id)
+    {
+        $musteri = Musteri::findOrFail($id);
+        $islemler = $musteri->islemler()->orderBy('created_at', 'desc')->get();
+
+        return view('musteriler.show', compact('musteri', 'islemler'));
+    }
+
+    // Müşteri sil
+    public function destroy($id)
+    {
+        $musteri = Musteri::findOrFail($id);
+        $musteri->islemler()->delete();
+        $musteri->delete();
+
+        return redirect()->route('musteriler.index')->with('success', 'Müşteri ve işlemleri silindi.');
+    }
+  
+   public function hesap()
 {
-    $musteri = Musteri::findOrFail($id);
-    $islemler = $musteri->islemler()->orderBy('created_at', 'desc')->get(); // 👈 işlemleri sırala
+    try {
+        $musteriler = Musteri::with('islemler', 'odemeler')
+            ->where('user_id', auth()->id())
+            ->get();
 
-    return view('musteriler.show', compact('musteri', 'islemler')); // 👈 $islemler değişkenini gönder
+        // Her müşteri için veri kontrolü (debug amaçlı)
+        foreach ($musteriler as $musteri) {
+            logger("Müşteri: " . $musteri->ad_soyad);
+            logger("İşlem sayısı: " . $musteri->islemler->count());
+            logger("Ödeme sayısı: " . $musteri->odemeler->count());
+        }
+
+        return view('musteriler.hesap', compact('musteriler'));
+
+    } catch (\Throwable $e) {
+        return response()->json([
+            'hata' => $e->getMessage(),
+            'satir' => $e->getLine(),
+            'dosya' => $e->getFile(),
+        ], 500);
+    }
 }
-
-
-public function destroy($id)
-{
-    $musteri = Musteri::findOrFail($id);
-
-    // Önce ilişkili işlemleri sil
-    $musteri->islemler()->delete();
-
-    // Sonra müşteriyi sil
-    $musteri->delete();
-
-    return redirect()->route('musteriler.index')->with('success', 'Müşteri ve işlemleri silindi.');
-}
-
-
-    
 
 }

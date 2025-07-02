@@ -9,7 +9,6 @@ class Musteri extends Model
 {
     use HasFactory;
 
-
     protected $table = 'musteriler';
 
     protected $fillable = [
@@ -17,6 +16,7 @@ class Musteri extends Model
         'telefon',
         'plaka',
         'model',
+        'user_id',
     ];
 
     public function islemler()
@@ -24,14 +24,23 @@ class Musteri extends Model
         return $this->hasMany(Islem::class, 'musteri_id');
     }
 
-    public function modelGecmisi()
-{
-    return $this->hasMany(ModelGecmisi::class);
-}
-  
+    public function odemeler()
+    {
+        return $this->hasMany(Odeme::class, 'musteri_id');
+    }
 
-  public function aracGecmisleri()
-{
-    return $this->hasMany(AracGecmisi::class);
-}
+    public function toplamBorc()
+    {
+        return $this->islemler->sum('fiyat');
+    }
+
+    public function toplamOdeme()
+    {
+        return $this->odemeler->sum('tutar');
+    }
+
+    public function kalanBorc()
+    {
+        return $this->toplamBorc() - $this->toplamOdeme();
+    }
 }

@@ -18,7 +18,7 @@
             <tbody>
                 @foreach($sonIslemler as $islem)
                     <tr>
-                        <td>{{ $islem->id }}</td>
+                        <td>{{ $islem->kullanici_islem_no }}</td>
                         <td>{{ $islem->musteri->ad_soyad ?? 'Bilinmiyor' }}</td>
                         <td>{{ $islem->yapilan_islem }}</td>
                         <td>{{ number_format($islem->fiyat, 2) }} ₺</td>

@@ -1,27 +1,20 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
-
-
-
-
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-
-class Islem extends Model
+class Odeme extends Model
 {
     use HasFactory;
 
-    protected $table = 'islemler';
+    protected $table = 'odemeler';
 
     protected $fillable = [
         'musteri_id',
-        'yapilan_islem',
-        'fiyat',
-        'user_id',
-        'kullanici_islem_no',
+        'tutar',
+        'aciklama',
     ];
 
     public function musteri()
