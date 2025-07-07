@@ -43,4 +43,9 @@ class Musteri extends Model
     {
         return $this->toplamBorc() - $this->toplamOdeme();
     }
+    public function aracGecmisleri()
+{
+    return $this->hasMany(\App\Models\AracGecmisi::class);
+}
+
 }

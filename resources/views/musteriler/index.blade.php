@@ -43,6 +43,9 @@
                     <a href="{{ route('musteriler.edit', $musteri->id) }}" class="btn btn-sm btn-warning mb-1">Düzenle</a>
                     <a href="{{ route('musteriler.show', $musteri->id) }}" class="btn btn-sm btn-info mb-1">Detay</a>
                     <a href="{{ route('musteriler.islemler.index', $musteri->id) }}" class="btn btn-sm btn-danger mb-1">İşlem Sil</a>
+                    <a href="{{ route('musteri.fatura', $musteri->id) }}" class="btn btn-sm btn-dark">
+                      <i class="fas fa-file-pdf"></i> Fatura Yazdır
+                    </a>
                 </td>
             </tr>
         @endforeach

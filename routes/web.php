@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('islemler/{islem}', [IslemController::class, 'destroy'])->name('islemler.destroy');
     Route::get('/musteriler/{musteri}/islemler', [IslemController::class, 'index'])->name('musteriler.islemler.index');
     Route::post('/odemeler/{musteri}', [OdemeController::class, 'store'])->name('odemeler.store');
+    Route::get('/musteriler/{musteri}/fatura', [MusteriController::class, 'fatura'])->name('musteri.fatura');
 
 });
 

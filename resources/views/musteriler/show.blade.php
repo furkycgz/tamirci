@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
 <h2>Müşteri Detayları</h2>
 
 <div>
@@ -8,6 +14,20 @@
     <strong>Telefon:</strong> {{ $musteri->telefon }}<br>
     <strong>Plaka:</strong> {{ $musteri->plaka }}<br>
 </div>
+
+<hr>
+
+<h4>Araç Geçmişi</h4>
+<ul>
+    @if($musteri->aracGecmisleri && $musteri->aracGecmisleri->count())
+        @foreach($musteri->aracGecmisleri->sortBy('created_at') as $arac)
+            <li>{{ $arac->created_at->format('d.m.Y H:i') }} – {{ $arac->model }} – {{ $arac->plaka }}</li>
+        @endforeach
+    @endif
+
+    {{-- En son satıra güncel aracı yaz --}}
+    <li>{{ now()->format('d.m.Y H:i') }} – {{ $musteri->model }} – {{ $musteri->plaka }} <strong>(güncel)</strong></li>
+</ul>
 
 <hr>
 

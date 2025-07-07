@@ -8,6 +8,8 @@ use App\Models\Islem;
 use App\Models\ModelGecmisi;
 use App\Models\AracGecmisi;
 use App\Models\Odeme;
+use App\Models\SirketAyar;
+use Barryvdh\DomPDF\Facade\Pdf;
 class MusteriController extends Controller
 {
     // Müşteri listeleme
@@ -101,12 +103,13 @@ class MusteriController extends Controller
 
     // Müşteri detay
     public function show($id)
-    {
-        $musteri = Musteri::findOrFail($id);
-        $islemler = $musteri->islemler()->orderBy('created_at', 'desc')->get();
+{
+    $musteri = Musteri::with('aracGecmisleri', 'islemler', 'odemeler')->findOrFail($id);
+    $islemler = $musteri->islemler->sortByDesc('created_at');
 
-        return view('musteriler.show', compact('musteri', 'islemler'));
-    }
+    return view('musteriler.show', compact('musteri', 'islemler'));
+}
+
 
     // Müşteri sil
     public function destroy($id)
@@ -142,5 +145,26 @@ class MusteriController extends Controller
         ], 500);
     }
 }
+
+
+
+public function fatura(Musteri $musteri)
+{
+    // İlgili müşteri işlemleri
+    $islemler = $musteri->islemler()->latest()->get();
+
+    // Şirket ayarlarını çek
+    $ayarlar = auth()->user()->sirketAyar;
+     
+     if (!$ayarlar) {
+        return back()->with('error', 'Fatura oluşturmak için önce ayarlarınızı girin.');
+    }
+    // PDF oluştur
+    $pdf = Pdf::loadView('faturalar.fatura_pdf', compact('musteri', 'islemler', 'ayarlar'));
+
+    return $pdf->download("Fatura_{$musteri->id}.pdf");
+}
+
+
 
 }
